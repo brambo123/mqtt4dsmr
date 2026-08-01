@@ -53,11 +53,11 @@ class RateLimitedPublisher:
             with self.started:
                 self.started.notify()
 
-            epoch = time.monotonic_ns()
+            next_ts = time.monotonic_ns()
 
             while True:
                 self.tick.wait()
-                sleep_ns = epoch - time.monotonic_ns()
+                sleep_ns = next_ts - time.monotonic_ns()
                 if sleep_ns > 0:
                     logging.debug(f'Rate limiter delay: {sleep_ns} ns')
                     time.sleep(sleep_ns / 1000000000)
@@ -68,7 +68,7 @@ class RateLimitedPublisher:
                     self.rate_ok = True
                     self.msg.notify()
 
-                epoch += self.interval_ns
+                next_ts += self.interval_ns
 
     def loop(self):
         with self.msg:
